@@ -14,6 +14,10 @@ class NETWORKPROJECT_API ANetProGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
+protected:
+
+	virtual void BeginPlay() override;
+	
 public:
 	ANetProGameMode();
 
