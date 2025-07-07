@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 
+#include "UMG/ShopUserWidget.h"
 
 
 
@@ -21,6 +22,10 @@ void UMainGameUserWidget::NativeConstruct()
 	if(WinnerText)
 	{
 		WinnerText->SetVisibility(ESlateVisibility::Hidden);
+	}
+	if(ShopWidget)
+	{
+		ShopWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 

@@ -24,7 +24,7 @@ public:
 
 	ASceneItemActor* GetSceneItemActorPassBySingleItemUI(){return SceneItemActorPassBySingleItemUI;}
 
-	int32 GetSingleItemUIPosition(){return SingleItemUIPosition;}
+	int32 GetSingleItemUIPosition(){return CurrentSingleItemUIPosition;}
 	
 protected:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
@@ -39,5 +39,5 @@ protected:
 
 	ASceneItemActor* SceneItemActorPassBySingleItemUI;
 
-	int32 SingleItemUIPosition;
+	int32 CurrentSingleItemUIPosition;
 };

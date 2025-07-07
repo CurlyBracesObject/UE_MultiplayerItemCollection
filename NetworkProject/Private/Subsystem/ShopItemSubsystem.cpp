@@ -3,7 +3,8 @@
 
 
 #include "Subsystem/ShopItemSubsystem.h"
-#include "Subsystem/ShopItemSubsystem.h"
+
+#include "NetProGameState.h"
 #include "Engine/Texture2D.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/SkeletalMesh.h"
@@ -29,8 +30,18 @@ TArray<FShopItemSkin*> UShopItemSubsystem::GetAllSkins()
 
 	for(auto& Pair:SkinMap)
 	{
-		AllSkins.Add(Pair.Value);
+		if(ANetProGameState* GS=GetWorld()->GetGameState<ANetProGameState>())
+		{
+			if(!GS->IsItemPurchased(Pair.Key))
+			{
+				AllSkins.Add(Pair.Value);
+			}else
+			{
+				//UE_LOG(LogTemp, Log, TEXT("商品ID:%d已购买"),Pair.Key);
+			}
+		}
 	}
+	//UE_LOG(LogTemp, Log, TEXT("返回%d个可购买的商品"),AllSkins.Num());
 	return AllSkins;
 }
 
@@ -39,7 +50,8 @@ void UShopItemSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);
 
 	LoadItemsFromJson();
-	UE_LOG(LogTemp, Log, TEXT("道具系统初始化完成，加载了%d个道具"),SkinMap.Num());
+	//UE_LOG(LogTemp, Log, TEXT("道具系统初始化完成，加载了%d个道具"),SkinMap.Num());
+	LoadShopBaseInfoFromJson();
 }
 
 void UShopItemSubsystem::Deinitialize()
@@ -72,7 +84,7 @@ void UShopItemSubsystem::LoadItemsFromJson()
 
 	if(FJsonSerializer::Deserialize(JsonReader,JsonArray))//读取器JsonReader变成JsonArray内存对象 加载进内存
 	{
-		UE_LOG(LogTemp, Log, TEXT("Json解析成功，道具数量：%d"),JsonArray.Num());
+		//UE_LOG(LogTemp, Log, TEXT("Json解析成功，道具数量：%d"),JsonArray.Num());
 		for (auto& Item:JsonArray)
 		{
 			TSharedPtr<FJsonObject> ItemObject=Item->AsObject();
@@ -108,14 +120,44 @@ void UShopItemSubsystem::LoadItemsFromJson()
 				
 
 				SkinMap.Add(NewSkin->ID,NewSkin);
-				UE_LOG(LogTemp, Log, TEXT("ID=%d,Name=%s,Price=%d,Icon=%s"),
-					NewSkin->ID,*NewSkin->Name.ToString(),NewSkin->Price,
-					NewSkin->Icon?TEXT("加载成功"):TEXT("加载失败"));
+				//UE_LOG(LogTemp, Log, TEXT("ID=%d,Name=%s,Price=%d,Icon=%s"),
+					//NewSkin->ID,*NewSkin->Name.ToString(),NewSkin->Price,
+					//NewSkin->Icon?TEXT("加载成功"):TEXT("加载失败"));
 			}
 		}
 	}else
 	{
 		UE_LOG(LogTemp, Log, TEXT("Json解析失败"));
+	}
+}
+
+void UShopItemSubsystem::LoadShopBaseInfoFromJson()
+{
+	FString ShopJsonPath=FPaths::ProjectContentDir()+TEXT("NetProject/Data/ShopData.json");
+	FString ShopJsonString;
+
+	if(!FFileHelper::LoadFileToString(ShopJsonString,*ShopJsonPath))
+	{
+		UE_LOG(LogTemp, Log, TEXT("找不到商店Json文件：%s"),*ShopJsonPath);
+		return;
+	}
+	UE_LOG(LogTemp, Log, TEXT("Json内容%s"),*ShopJsonString);
+
+	TSharedRef<TJsonReader<TCHAR>> JsonReader=TJsonReaderFactory<TCHAR>::Create(ShopJsonString);
+	TSharedPtr<FJsonObject> JsonObject;
+
+	if(FJsonSerializer::Deserialize(JsonReader,JsonObject)&&JsonObject.IsValid())
+	{
+		ShopBaseInfoStruct.ShopName=FText::FromString(JsonObject->GetStringField(TEXT("ShopName")));
+		ShopBaseInfoStruct.WelcomeMessage=FText::FromString(JsonObject->GetStringField(TEXT("WelcomeMessage")));
+		ShopBaseInfoStruct.IsOpen=JsonObject->GetBoolField(TEXT("IsOpen"));
+		ShopBaseInfoStruct.OpenTime=JsonObject->GetStringField(TEXT("OpenTime"));
+		ShopBaseInfoStruct.CloseTime=JsonObject->GetStringField(TEXT("CloseTime"));
+
+		UE_LOG(LogTemp, Log, TEXT("商店信息:%s,%s"),*ShopBaseInfoStruct.ShopName.ToString(),*ShopBaseInfoStruct.CloseTime);
+	}else
+	{
+		UE_LOG(LogTemp, Log, TEXT("商店Json解析失败"));
 	}
 }
 

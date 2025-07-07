@@ -111,14 +111,14 @@ void ANetProHUD::BeginPlay()
 		MainGameUI->AddToViewport();
 		
 	}
-	//注意要HUD调用这个里面的方法才会走逻辑
+	/*//注意要HUD调用这个里面的方法才会走逻辑
 	if(GetOwningPlayerController()->HasAuthority())
 	{
 		if(ANetProGameState* GameState=GetWorld()->GetGameState<ANetProGameState>())
 		{
 			GameState->StartGameCountDown(20);
 		}
-	}
+	}*/
 }
 
 

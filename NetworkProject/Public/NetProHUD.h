@@ -36,12 +36,14 @@ protected:
 public:
 	UPROPERTY()
 	UDeskDisplayUserWidget* DeskDisplayUI;
+
+	UPROPERTY()
+	UMainGameUserWidget* MainGameUI;
 protected:
 	UPROPERTY()
 	UPackageUserWidget* PackageUI;
 
-	UPROPERTY()
-	UMainGameUserWidget* MainGameUI;
+
 
 	/*ANetProPlayerCharacter* PlayerCharacter;
 	ADeskActor* DeskActor;

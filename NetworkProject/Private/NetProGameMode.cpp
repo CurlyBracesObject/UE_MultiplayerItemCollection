@@ -10,12 +10,13 @@
 #include "Player/NetProPlayerController.h"
 #include "Player/NetProPlayerStart.h"
 #include "Subsystem/ShopItemSubsystem.h"
+#include "NetProGameState.h"
 
 void ANetProGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FTimerHandle TestTimer;
+	/*FTimerHandle TestTimer;
 	GetWorld()->GetTimerManager().SetTimer(TestTimer,[this]()
 	{
 		UShopItemSubsystem* ShopSystem=GetGameInstance()->GetSubsystem<UShopItemSubsystem>();
@@ -24,7 +25,15 @@ void ANetProGameMode::BeginPlay()
 			TArray<FShopItemSkin*> AllSkins=ShopSystem->GetAllSkins();
 			UE_LOG(LogTemp, Log, TEXT("检查结果，共有%d个道具"),AllSkins.Num());
 		}
-	},1.f,false);
+	},1.f,false);*/
+	
+	if(HasAuthority())
+	{
+		if(ANetProGameState* MyGameState=GetWorld()->GetGameState<ANetProGameState>())
+		{
+			MyGameState->StartGameCountDown(180);
+		}
+	}
 }
 
 ANetProGameMode::ANetProGameMode()

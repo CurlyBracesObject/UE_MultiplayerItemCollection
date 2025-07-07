@@ -16,4 +16,10 @@ class NETWORKPROJECT_API ANetProPlayerController : public APlayerController
 
 public:
 	ANetProPlayerController();
+
+	void PurchaseItem(int32 ItemID);
+
+	UFUNCTION(Server,Reliable,WithValidation)
+	void Server_PurchaseItem(int32 ItemID);
+	
 };

@@ -6,6 +6,7 @@
 #include "GameFramework/GameMode.h"
 #include "NetProGameMode.generated.h"
 
+class ANetProGameState;
 /**
  * 
  */

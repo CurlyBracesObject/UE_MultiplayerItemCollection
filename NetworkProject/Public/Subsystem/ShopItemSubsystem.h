@@ -44,6 +44,20 @@ struct FShopItemSkin:public FShopSingleItemBase
 };
 
 
+//商店基本信息结构体
+USTRUCT()
+struct FShopBaseInfoStruct
+{
+	GENERATED_BODY()
+	
+	FText ShopName;
+	FText WelcomeMessage;
+	bool IsOpen;
+	FString OpenTime;
+	FString CloseTime;
+	
+};
+
 /**
  * 
  */
@@ -56,27 +70,31 @@ class NETWORKPROJECT_API UShopItemSubsystem : public UGameInstanceSubsystem
 public:
 	
 	const FShopSingleItemBase* GetSingleItemByID(int32 ID);
-
+	
 	//获取所有道具以供商店使用
 	//UFUNCTION(BlueprintCallable)
 	TArray<FShopItemSkin*> GetAllSkins();
-	void LoadItemsFromJson();
 
+	const FShopBaseInfoStruct* GetShopBaseInfo() const {return &ShopBaseInfoStruct;}
 	
+	void LoadItemsFromJson();
+	void LoadShopBaseInfoFromJson();
+
 
 protected:
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-
 	virtual void Deinitialize() override;
 	
 	//资源路径解析和加载
 	UTexture2D* LoadIconFromPath(const FString& IconPath);
-	
 	EShopItemSkinType StringToSkinType(const FString& TypeString);
 
 protected:
 
 	TMap<int32,FShopItemSkin*> SkinMap;
+	
+	//UPROPERTY()
+	FShopBaseInfoStruct ShopBaseInfoStruct;
 	
 };

@@ -7,6 +7,7 @@
 #include "MainGameUserWidget.generated.h"
 
 class UTextBlock;
+class UShopUserWidget;
 /**
  * 
  */
@@ -18,6 +19,8 @@ class NETWORKPROJECT_API UMainGameUserWidget : public UUserWidget
 public:
 	UFUNCTION()
 	void ShowGameResult(int32 WinnerPlayerID);
+
+	UShopUserWidget* GetShopMainWidget(){return ShopWidget;};
 	
 protected:
 	virtual void NativeConstruct() override;
@@ -27,7 +30,9 @@ protected:
 
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* WinnerText;
-	
+
+	UPROPERTY(meta=(BindWidget))
+	UShopUserWidget* ShopWidget;
 
 	UFUNCTION()
 	void UpdateCountDownText(int32 RemainingTime);

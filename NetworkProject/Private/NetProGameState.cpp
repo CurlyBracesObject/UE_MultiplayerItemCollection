@@ -94,12 +94,83 @@ void ANetProGameState::StartGameCountDown(int32 Seconds)
 	},1.f,true);
 }
 
+/*void ANetProGameState::PurchaseItem(int32 ItemID)
+{
+	if(!PurchasedItemsArray.Contains(ItemID))
+	{
+		//UE_LOG(LogTemp, Log, TEXT("ANetProGameState::PurchaseItem(int32 ItemID)"));
+		PurchasedItemsArray.Add(ItemID);
+		//UE_LOG(LogTemp, Log, TEXT("添加购买的商品:%d"),ItemID);
+
+		//ForceNetUpdate();
+	}
+}*/
+
+/*void ANetProGameState::PurchaseItem(int32 ItemID)
+{
+	UE_LOG(LogTemp, Log, TEXT("GameState调用，HasAuthority:%s"),HasAuthority()?TEXT("true"):TEXT("false"));
+	if(!HasAuthority())
+	{
+		Server_PurchaseItem(ItemID);
+		return;
+	}
+	if(!PurchasedItemsArray.Contains(ItemID))
+	{
+		UE_LOG(LogTemp, Log, TEXT("ANetProGameState::PurchaseItem(int32 ItemID)"));
+		PurchasedItemsArray.Add(ItemID);
+		UE_LOG(LogTemp, Log, TEXT("添加购买的商品:%d"),ItemID);
+
+		ForceNetUpdate();
+	}
+}*/
+void ANetProGameState::PurchaseItem(int32 ItemID)
+{
+	//UE_LOG(LogTemp, Log, TEXT("GameState调用，HasAuthority:%s"),HasAuthority()?TEXT("true"):TEXT("false"));
+	if(!HasAuthority())
+	{
+		UE_LOG(LogTemp, Log, TEXT("PurchaseItem方法只能在服务器上调用"));
+		return;
+	}
+	if(!PurchasedItemsArray.Contains(ItemID))
+	{
+		PurchasedItemsArray.Add(ItemID);
+		//UE_LOG(LogTemp, Log, TEXT("添加购买的商品:%d"),ItemID);
+
+		//服务器上购买成功后 广播给所有客户端
+		Multi_OnItemPurchased(ItemID);
+
+		ForceNetUpdate();
+	}
+}
+
+/*void ANetProGameState::OnRep_PurchasedItems()
+{
+	OnPurchasedItemChanged.Broadcast(PurchasedItemsArray);
+}*/
+
+/*void ANetProGameState::Server_PurchaseItem_Implementation(int32 ItemID)
+{
+	PurchaseItem(ItemID);
+}
+
+bool ANetProGameState::Server_PurchaseItem_Validate(int32 ItemID)
+{
+	return true;
+}*/
+
+bool ANetProGameState::IsItemPurchased(int32 ItemID) const
+{
+	return PurchasedItemsArray.Contains(ItemID);
+}
+
+
 void ANetProGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ANetProGameState,PlayerOneScore);
 	DOREPLIFETIME(ANetProGameState,PlayerTwoScore);
 	DOREPLIFETIME(ANetProGameState,RemainingTime);
+	DOREPLIFETIME(ANetProGameState,PurchasedItemsArray);
 }
 
 void ANetProGameState::Server_AddScoreToPlayer_Implementation(int32 PlayerID, int32 Score)
@@ -113,6 +184,21 @@ bool ANetProGameState::Server_AddScoreToPlayer_Validate(int32 PlayerID, int32 Sc
 }
 
 
+/*void ANetProGameState::Server_PurchaseItem_Implementation(int32 ItemID)
+{
+	PurchaseItem(ItemID);
+}
+
+bool ANetProGameState::Server_PurchaseItem_Validate(int32 ItemID)
+{
+	return true;
+}*/
+
+
+void ANetProGameState::Multi_OnItemPurchased_Implementation(int32 ItemID)
+{
+	OnPurchasedItemChanged.Broadcast(ItemID);
+}
 
 void ANetProGameState::OnRep_PlayerOneScore()
 {
@@ -152,7 +238,7 @@ void ANetProGameState::Multi_DisablePlayerInput_Implementation()
 			if(APawn* PlayerPawn=PC->GetPawn())
 			{
 				PlayerPawn->DisableInput(PC);
-				UE_LOG(LogTemp, Log, TEXT("禁用玩家输入"));
+				//UE_LOG(LogTemp, Log, TEXT("禁用玩家输入"));
 			}
 		}
 	}

@@ -26,7 +26,7 @@ void USingleItemInPackageWidget::InitSingleItemUIPanel(ASceneItemActor* SceneIte
 
 void USingleItemInPackageWidget::InitSingleItemUIPanel(int32 Position, int32 ID)
 {
-	SingleItemUIPosition=Position;
+	CurrentSingleItemUIPosition=Position;
 	const FSingleItemBase* SingleItemBase=GetWorld()->GetGameInstance()->GetSubsystem<UItemOnTheGroundSubsystem>()->GetSingleItemByID(ID);
 
 	if(SingleItemBase)

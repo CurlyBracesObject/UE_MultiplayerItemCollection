@@ -4,6 +4,7 @@
 #include "Player/NetProPlayerCharacter.h"
 
 #include "NetProHUD.h"
+#include "Actors/ShopActor.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -11,9 +12,13 @@
 #include "NetworkProject/NetworkProject.h"
 #include "Player/NetProPlayerController.h"
 #include "Scene/SceneItemActor.h"
+#include "Subsystem/ShopItemSubsystem.h"
 #include "UMG/Widget/ItemsInScrollBoxWidget.h"
 
 #include "UMG/PackageUserWidget.h"
+#include "UMG/ShopUserWidget.h"
+#include "UMG/MainGameUserWidget.h"
+#include "UMG/Widget/ShopItemsScrollBoxWidget.h"
 
 ANetProPlayerCharacter::ANetProPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
@@ -143,8 +148,53 @@ void ANetProPlayerCharacter::OnComponentBeginOverlap(UPrimitiveComponent* Overla
 				}
 			}
 		}
-		
 	}
+
+	if(AShopActor* ShopActor=Cast<AShopActor>(OtherActor))
+	{
+		if(ANetProPlayerController* PC=Cast<ANetProPlayerController>(GetController()))
+		{
+			if(PC->IsLocalController())
+			{
+				if(ANetProHUD* MyHUD=Cast<ANetProHUD>(PC->GetHUD()))
+				{
+					//获取商店子系统
+					UShopItemSubsystem* ShopSubsystem=GetGameInstance()->GetSubsystem<UShopItemSubsystem>();
+					if(ShopSubsystem)
+					{
+						TArray<FShopItemSkin*> AllSkins=ShopSubsystem->GetAllSkins();
+
+						UShopUserWidget* MainShopUI=MyHUD->MainGameUI->GetShopMainWidget();
+
+						if(MainShopUI&&MainShopUI->ShopInfoUI)
+						{
+							MainShopUI->ShopInfoUI->InitShopInfoUI();
+						}
+					
+						if(MainShopUI&&MainShopUI->ShopItemsInScrollBoxWidget)
+						{
+							MainShopUI->ShopItemsInScrollBoxWidget->ClearScrollBox();
+
+							//使用json中的真实ID
+							for(FShopItemSkin* Skin:AllSkins)
+							{
+								if(Skin)
+								{
+									MainShopUI->ShopItemsInScrollBoxWidget->AddSingleItemInShopWidgetToScrollBox(Skin->ID);
+								}
+							}
+						}
+					}
+					MyHUD->MainGameUI->GetShopMainWidget()->SetVisibility(ESlateVisibility::Visible);
+
+					/*//添加输入设置
+					PC->SetInputMode(FInputModeGameAndUI());
+					PC->SetShowMouseCursor(true);*/
+				}
+			}
+		}
+	}
+	
 }
 
 void ANetProPlayerCharacter::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -167,8 +217,17 @@ void ANetProPlayerCharacter::OnComponentEndOverlap(UPrimitiveComponent* Overlapp
 				}
 			}
 		}
-
-		
+	}
+	if(ANetProPlayerController* PC=Cast<ANetProPlayerController>(GetController()))
+	{
+		if(PC->IsLocalController())
+		{
+			if(ANetProHUD* MyHUD=Cast<ANetProHUD>(PC->GetHUD()))
+			{
+				MyHUD->MainGameUI->GetShopMainWidget()->SetVisibility(ESlateVisibility::Hidden);
+				
+			}
+		}
 	}
 }
 
