@@ -170,7 +170,7 @@ AActor* ANetProGameMode::ChoosePlayerStart_Implementation(AController* Player)
 
  
 项目亮点
-1.	完整的多人游戏网络架构
+1.	多人游戏网络架构
 2.	JSON驱动的数据管理系统
 3.	组件化的模块设计
 4.	稳定的服务器-客户端同步机制
